@@ -1,4 +1,5 @@
 -- TODO --
+USE maturita;
 
 INSERT INTO users (id, username, password)
-VALUES (1, "example", "12345");
+VALUES (1, "example", md5("12345"));

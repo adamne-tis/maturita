@@ -2,10 +2,30 @@
 http://:80 {
     log
 
-    root * /srv
+    # root * /srv
 
-    php_fastcgi php:9000 {
-        root /srv/src
+    # php_fastcgi php:9000 {
+        # root /srv/src
+    # 
+    # file_server /public/*
+
+
+    handle_path /public/* {
+        root * /srv/public
+        file_server
     }
-    file_server /public/*
+
+    handle {
+        root * /srv/src
+
+        php_fastcgi php:9000 {
+            try_files {path} {path}/index.php =404
+        }
+    }
+
+    # handle {
+        # root * /srv/src
+        # php_fastcgi php:9000
+        # try_files {path} {path}/index.php
+    # }
 }

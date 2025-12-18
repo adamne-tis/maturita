@@ -7,11 +7,15 @@ services:
     volumes:
       - "./docker/caddy:/etc/caddy"
       - "./public:/srv/public:ro"
+      - "./src:/srv/src:ro"
     # environment:
     #   - DOMAIN=example.com
 
   php:
-    image: docker.io/php:8.5-fpm-alpine
+    # image: docker.io/php:8.5-fpm-alpine
+    build:
+      context: .
+      dockerfile: php.Dockerfile
     restart: unless-stopped
     volumes:
       - "./src:/srv/src:ro"
@@ -19,13 +23,16 @@ services:
   db:
     image: docker.io/mariadb:12.1
     restart: unless-stopped
-    ports:
-      - "3306:3306"  # remove later
     env_file:
       - ./db.env
+    volumes:
+      - db-data:/var/lib/mysql
 
   phpmyadmin:
     image: docker.io/phpmyadmin:5.2
     restart: unless-stopped
     ports:
       - "8080:80"
+
+volumes:
+  db-data:
