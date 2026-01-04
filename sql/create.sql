@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `maturita`.`users` (
 ENGINE = InnoDB;
 
 
-CREATE TABLE IF NOT EXISTS `maturita`.`study_set` (
+CREATE TABLE IF NOT EXISTS `maturita`.`study_sets` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `title` VARCHAR(255) NULL,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `maturita`.`cards` (
   INDEX `fk_study_set_idx` (`study_set_id` ASC) VISIBLE,
   CONSTRAINT `fk_study_set`
     FOREIGN KEY (`study_set_id`)
-    REFERENCES `maturita`.`study_set` (`id`)
+    REFERENCES `maturita`.`study_sets` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

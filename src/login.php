@@ -1,4 +1,15 @@
 <?php
+session_start();
+include_once "utils.php";
+
+if (is_logged_in()) {
+    header("Location: sets.php");
+    exit();
+}
+?>
+
+<?php
+$page_title = "Přihlásit se | Flashcards";
 include_once "./layout/header.php";
 ?>
 
@@ -11,9 +22,8 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
     $conn = connect_db();
 
     $sql = "SELECT id FROM users WHERE username=? AND password=md5(?)";
-    // $stmt = mysqli_prepare($conn, $sql);
+
     $stmt = $conn->prepare($sql);
-    // mysqli_stmt_bind_param($stmt, "ss", $username, $password);
     $stmt->bind_param("ss", $username, $password);
 
     $stmt->execute();
@@ -21,16 +31,15 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
     $row = $result->fetch_assoc();
 
     if (!$row) {
-        echo "Invalid login";
+        echo "Neplatné uživatelské jméno nebo heslo";
     } else {
-        echo "Login successful";
-    }
+        echo "Úspěšné přihlášení";
+        $_SESSION["user_id"] = $row["id"];
 
-    // if (mysqli_stmt_execute($stmt)) {
-    //     echo "yes";
-    // } else {
-    //     echo "no";
-    // }
+        // redirect to sets.php
+        echo '<script>window.location.href="sets.php";</script>';
+        exit();
+    }
 }
 ?>
 
@@ -39,11 +48,11 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
 <form method="post">
     <p>
         <label for="username">Uživatelské jméno:</label>
-        <input type="text" name="username" id="username">
+        <input type="text" name="username" id="username" required>
     </p>
     <p>
         <label for="password">Heslo:</label>
-        <input type="password" name="password" id="password">
+        <input type="password" name="password" id="password" required>
     </p>
     <p>
         <button type="submit">Přihlásit se</button>

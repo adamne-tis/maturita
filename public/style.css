@@ -15,7 +15,15 @@ body {
     /* margin-right: 10px; */
 }
 
-.navbar > ul > :nth-child(2) {
+/* .navbar > ul > :nth-child(2) {
+    margin-right: auto;
+} */
+
+/* .navbar-right-separator {
+    margin-right: auto;
+} */
+
+.navbar-separator {
     margin-right: auto;
 }
 
@@ -57,4 +65,5 @@ th, td {
 .card > p {
     margin: auto;
     font-size: 2rem;
+    text-align: center;
 }

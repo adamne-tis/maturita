@@ -1,8 +1,8 @@
 <?php
+$page_title = "Flashcards";
 include_once "./layout/header.php";
 ?>
 
-<!-- TODO: vymyslet nazev -->
 <h1>Flashcards</h1>
 
 <!-- TODO: info o strance -->
