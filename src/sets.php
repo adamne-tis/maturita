@@ -1,11 +1,21 @@
 <?php
+session_start();
+include_once "utils.php";
+
+if (!is_logged_in()) {
+    header("Location: login.php");
+    exit();
+}
+?>
+
+<?php
 $page_title = "Balíčky | Flashcards";
 include_once "./layout/header.php";
 ?>
 
 <h1>Balíčky</h1>
 
-<a href="new_set.php">Vytvořit nový</a>
+<a href="./new_set.php">Vytvořit nový</a>
 
 <ul>
     <?php
@@ -26,7 +36,7 @@ include_once "./layout/header.php";
             $title = $row["title"];
 
             echo "<li>";
-            echo '<a href="set.php?id='. $id. '">'. htmlspecialchars($title). "</a>";
+            echo '<a href="./set.php?id='. $id. '">'. htmlspecialchars($title). "</a>";
             echo "</li>";
         }
     ?>

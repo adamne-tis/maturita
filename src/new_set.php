@@ -31,7 +31,7 @@ if (isset($_POST["title"]) && isset($_POST["description"])) {
         $id = $conn->insert_id;  // get id of the newly created study set
     
         // redirect to newly created study set
-        echo '<script>window.location.href="set.php?id='. $id. '";</script>';
+        echo '<script>window.location.href="./set.php?id='. $id. '";</script>';
     }
 }
 ?>

@@ -26,21 +26,21 @@ include_once "utils.php";
     <header>
        <nav class="navbar">
             <ul>
-                <li><a href="/">Domů</a></li>
+                <li><a href="./index.php">Domů</a></li>
                 <?php
                 if (is_logged_in()) {
-                    echo '<li><a href="/sets.php">Balíčky</a></li>';
+                    echo '<li><a href="./sets.php">Balíčky</a></li>';
                 }
                 ?>
                 <div class="navbar-separator"></div>
                 
                 <?php
                 if (is_logged_in()) {
-                    echo '<li><a href="/profile.php">Profil</a></li>';
-                    echo '<li><a href="/logout.php">Odhlásit se</a></li>';
+                    echo '<li><a href="./profile.php">Profil</a></li>';
+                    echo '<li><a href="./logout.php">Odhlásit se</a></li>';
                 } else {
-                    echo '<li><a href="/reg.php">Zaregistrovat se</a></li>';
-                    echo '<li><a href="/login.php">Přihlásit se</a></li>';
+                    echo '<li><a href="./reg.php">Zaregistrovat se</a></li>';
+                    echo '<li><a href="./login.php">Přihlásit se</a></li>';
                 }
                 ?>
             </ul>

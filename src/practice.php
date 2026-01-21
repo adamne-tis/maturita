@@ -106,7 +106,7 @@ include_once "./layout/header.php";
 
     async function fetchCards() {
         try {
-            const response = await fetch("/api/cards.php?study_set_id=<?php echo $study_set_id; ?>");
+            const response = await fetch("./api/cards.php?study_set_id=<?php echo $study_set_id; ?>");
             if (!response.ok) {
                 throw new Error(`Response status: ${response.status}`);
             }

@@ -56,11 +56,11 @@ include_once "./layout/header.php";
 <h1><?php echo htmlspecialchars($title); ?></h1>
 <p><?php echo htmlspecialchars($description); ?></p>
 
-<a href="practice.php?id=<?php echo $study_set_id; ?>">Procvičovat</a>
+<a href="./practice.php?id=<?php echo $study_set_id; ?>">Procvičovat</a>
 
-<a href="import.php?id=<?php echo $study_set_id; ?>">Importovat</a>
-<a href="export.php?id=<?php echo $study_set_id; ?>">Exportovat</a>
-<a href="gen_test.php?id=<?php echo $study_set_id; ?>">Vygenerovat test</a>
+<a href="./import.php?id=<?php echo $study_set_id; ?>">Importovat</a>
+<a href="./export.php?id=<?php echo $study_set_id; ?>">Exportovat</a>
+<a href="./gen_test.php?id=<?php echo $study_set_id; ?>">Vygenerovat test</a>
 
 <form method="post" onsubmit="return confirm('Opravdu chcete odstranit tento balíček?');">
     <input type="hidden" name="action" value="delete">
@@ -151,7 +151,7 @@ include_once "./layout/header.php";
         };
 
         try {
-            const response = await fetch("/api/cards.php", {
+            const response = await fetch("./api/cards.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -194,7 +194,7 @@ include_once "./layout/header.php";
         };
 
         try {
-            const response = await fetch("/api/cards.php", {
+            const response = await fetch("./api/cards.php", {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json"
@@ -234,7 +234,7 @@ include_once "./layout/header.php";
         new_card.back_text = dialogBackText.value;
 
         try {
-            const response = await fetch("/api/cards.php", {
+            const response = await fetch("./api/cards.php", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -278,7 +278,7 @@ include_once "./layout/header.php";
 
     async function loadRows() {
         try {
-            const response = await fetch("/api/cards.php?study_set_id=<?php echo $study_set_id; ?>");
+            const response = await fetch("./api/cards.php?study_set_id=<?php echo $study_set_id; ?>");
             if (!response.ok) {
                 throw new Error(`Response status: ${response.status}`);
             }
