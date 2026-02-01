@@ -15,36 +15,45 @@ include_once "./layout/header.php";
 
 <h1>Balíčky</h1>
 
-<a href="./new_set.php">Vytvořit nový</a>
+<a href="./new_set.php" class="btn">Vytvořit nový</a>
 
-<ul>
-    <?php
-        // TODO: check difference between "include" and "include_once" and unify all of the functions
-        include "db.php";
-        $conn = connect_db();
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Název</th>
+            <th scope="col">Počet karet</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+            // TODO: check difference between "include" and "include_once" and unify all of the functions
+            include "db.php";
+            $conn = connect_db();
 
-        $sql = "SELECT id, title FROM study_sets WHERE user_id=?";
+            $sql = "SELECT s.id, s.title, COUNT(*) AS card_count
+                    FROM study_sets s LEFT JOIN cards c
+                    ON c.study_set_id = s.id
+	                WHERE s.user_id=? GROUP BY 1";
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $_SESSION["user_id"]);
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $_SESSION["user_id"]);
 
-        $stmt->execute();
-        $result = $stmt->get_result();
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        while ($row = $result->fetch_assoc()) {
-            $id = $row["id"];
-            $title = $row["title"];
+            while ($row = $result->fetch_assoc()) {
+                $id = $row["id"];
+                $title = $row["title"];
+                $card_count = $row["card_count"];
 
-            echo "<li>";
-            echo '<a href="./set.php?id='. $id. '">'. htmlspecialchars($title). "</a>";
-            echo "</li>";
-        }
-    ?>
-
-    <!-- <li><a href="set.php?id=1">balicek 1</a></li>
-    <li><a href="set.php?id=2">balicek 2</a></li>
-    <li><a href="set.php?id=3">balicek 3</a></li> -->
-</ul>
+                echo "<tr>";
+                echo '<td><a href="./set.php?id='. $id. '">'. htmlspecialchars($title). "</a></td>";
+                echo "<td>$card_count</td>";
+                echo "</tr>";
+            }
+        ?>
+    </tbody>
+</table>
 
 <?php
 include_once "./layout/footer.php";

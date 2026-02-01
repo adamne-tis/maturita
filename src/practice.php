@@ -126,6 +126,7 @@ include_once "./layout/header.php";
         } else if (event.key == "ArrowRight") {
             nextCard();
         } else if (event.key == " ") {
+            event.preventDefault();
             flipCard();
         } else {
             return;

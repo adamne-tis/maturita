@@ -19,9 +19,9 @@ if (!check_study_set_ownership($user_id, $study_set_id)) {
 }
 
 if (isset($_POST["action"])) {
-    if ($_POST["action"] == "delete") {
-        $conn = connect_db();
+    $conn = connect_db();
 
+    if ($_POST["action"] == "delete") {
         // delete cards associated with this study set
         $sql1 = "DELETE FROM cards WHERE study_set_id=?";
 
@@ -40,32 +40,45 @@ if (isset($_POST["action"])) {
             header("Location: sets.php");
             exit();
         }
+    } elseif ($_POST["action"] == "edit_info") {
+        $title = $_POST["title"];
+        $description = $_POST["description"];
+
+        $sql = "UPDATE study_sets SET title=?, description=? WHERE id=?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssi", $title, $description, $study_set_id);
+
+        $result = $stmt->execute();
     }
 }
 
 $study_set = get_study_set($study_set_id);
-$title = $study_set["title"];
-$description = $study_set["description"];
-
+$title = htmlspecialchars($study_set["title"]);
+$description = htmlspecialchars($study_set["description"]);
 ?>
 
 <?php
 include_once "./layout/header.php";
 ?>
 
-<h1><?php echo htmlspecialchars($title); ?></h1>
-<p><?php echo htmlspecialchars($description); ?></p>
+<h1 id="title"><?php echo $title; ?></h1>
+<p id="description"><?php echo nl2br($description); ?></p>
 
-<a href="./practice.php?id=<?php echo $study_set_id; ?>">Procvičovat</a>
+<div class="actions-container">
+    <a href="./practice.php?id=<?php echo $study_set_id; ?>" class="btn">Procvičovat</a>
+    <a href="./gen_test.php?id=<?php echo $study_set_id; ?>" class="btn">Vygenerovat test</a>
+    <button onclick="infoDialog.showModal()">Upravit</button>
+    
+    <form method="post" onsubmit="return confirm('Opravdu chcete odstranit tento balíček?');">
+        <input type="hidden" name="action" value="delete">
+        <input type="submit" value="Odstranit balíček" class="btn-red">
+    </form>
+</div>
 
-<a href="./import.php?id=<?php echo $study_set_id; ?>">Importovat</a>
-<a href="./export.php?id=<?php echo $study_set_id; ?>">Exportovat</a>
-<a href="./gen_test.php?id=<?php echo $study_set_id; ?>">Vygenerovat test</a>
-
-<form method="post" onsubmit="return confirm('Opravdu chcete odstranit tento balíček?');">
-    <input type="hidden" name="action" value="delete">
-    <input type="submit" value="Odstranit balíček">
-</form>
+<div class="actions-container" id="selection-actions" style="display: none">
+    <button class="btn-red" onclick="deleteSelected()">Odstranit vybrané</button>
+</div>
 
 <table id="cards-table">
     <thead>
@@ -97,8 +110,24 @@ include_once "./layout/header.php";
     <button type="submit">Přidat</button>
 </form>
 
+<dialog id="info-dialog">
+    <form method="post">
+        <input type="hidden" name="action" value="edit_info">
+        <p>
+            <label for="info-title">Název:</label>
+            <input type="text" name="title" id="info-title" value="<?php echo $title; ?>">
+        </p>
+        <p>
+            <label for="info-description">Popis:</label>
+            <textarea name="description" id="info-description"><?php echo $description; ?></textarea>
+        </p>
 
-<dialog>
+        <input type="submit" value="Uložit">
+        <button type="button" onclick="infoDialog.close()">Zavřít</button>
+    </form>
+</dialog>
+
+<dialog id="card-dialog">
     <form method="post" id="edit-form">
         <input type="hidden" name="num" value="0" id="num" disabled>
         <input type="hidden" name="id" value="0" id="id">
@@ -114,27 +143,34 @@ include_once "./layout/header.php";
         <input type="submit" value="Uložit">
 
         <button type="button" onclick="deleteEntry()">Odstranit</button>
-        <button type="button" onclick="dialog.close()">Zavřít</button>
+        <button type="button" onclick="cardDialog.close()">Zavřít</button>
     </form>
 </dialog>
 
 <script>
     let cards = [];
 
+    let selectedRows = [];
 
-    const table = document.getElementById("cards-table");
+    const table = document.querySelector("table#cards-table");
     
-    // TODO: use better selectors
-    const dialog = document.querySelector("dialog");
-    const dialogForm = document.getElementById("edit-form");
-    const dialogNum = document.getElementById("num");
-    const dialogId = document.getElementById("id");
-    const dialogFrontText = document.getElementById("front-text");
-    const dialogBackText = document.getElementById("back-text");
+    const selectionActions = document.querySelector("#selection-actions");
+
+    const cardDialog = document.querySelector("dialog#card-dialog");
+    const cardDialogForm = cardDialog.querySelector("form");
+    const cardDialogNum = cardDialogForm.querySelector("#num");
+    const cardDialogId = cardDialogForm.querySelector("#id");
+    const cardDialogFrontText = cardDialogForm.querySelector("#front-text");;
+    const cardDialogBackText = cardDialogForm.querySelector("#back-text");
+
+    const infoDialog = document.querySelector("dialog#info-dialog");
+    const infoDialogTitle = infoDialog.querySelector('input[name="title"]')
+    const infoDialogDesc = infoDialog.querySelector('textarea[name="description"]')
 
     const addForm = document.querySelector("form#add-form");
     const frontTextInput = addForm.querySelector('input[name="front-text"]');
     const backTextInput = addForm.querySelector('input[name="back-text"]');
+
 
     async function addEntry() {
         let frontText = frontTextInput.value;
@@ -186,8 +222,8 @@ include_once "./layout/header.php";
     }
 
     async function deleteEntry() {
-        let cardId = parseInt(dialogId.value);
-        let cardNum = parseInt(dialogNum.value);
+        let cardId = parseInt(cardDialogId.value);
+        let cardNum = parseInt(cardDialogNum.value);
 
         jsonData = {
             "id": cardId
@@ -218,20 +254,20 @@ include_once "./layout/header.php";
 
             reorderRows();
 
-            dialog.close();
+            cardDialog.close();
         } catch (e) {
             console.error(e);
         }
     }
 
     async function updateEntry() {
-        let cardId = parseInt(dialogId.value);
-        let cardNum = parseInt(dialogNum.value);
+        let cardId = parseInt(cardDialogId.value);
+        let cardNum = parseInt(cardDialogNum.value);
         let card = cards[cardNum];
 
         let new_card = card;
-        new_card.front_text = dialogFrontText.value;
-        new_card.back_text = dialogBackText.value;
+        new_card.front_text = cardDialogFrontText.value;
+        new_card.back_text = cardDialogBackText.value;
 
         try {
             const response = await fetch("./api/cards.php", {
@@ -256,24 +292,10 @@ include_once "./layout/header.php";
             row.cells[3].innerText = new_card.back_text;
             console.log("updating row:", row);
 
-            dialog.close();
+            cardDialog.close();
         } catch (e) {
             console.error(e);
         }
-    }
-
-    function showEditDialog(row) {
-        console.log("editing row:", row);
-        let cardNum = parseInt(row.cells[1].innerText) - 1;
-
-        let card = cards[cardNum];
-
-        dialogNum.value = cardNum;
-        dialogId.value = card.id;
-        dialogFrontText.value = card.front_text;
-        dialogBackText.value = card.back_text;
-
-        dialog.showModal();
     }
 
     async function loadRows() {
@@ -319,12 +341,14 @@ include_once "./layout/header.php";
         checkbox.type = "checkbox";
         checkbox.name = ""; // TODO
         checkbox.id = ""; // TODO
+        const selectionBoundHandler = updateSelection.bind(null, row);
+        checkbox.onclick = selectionBoundHandler;
 
         const editButton = document.createElement("button");
         editButton.innerText = "Upravit";
-        // const boundHandler = showEditDialog.bind(null, i);
-        const boundHandler = showEditDialog.bind(null, row);
-        editButton.onclick = boundHandler;
+        // const boundHandler = showCardDialog.bind(null, i);
+        const dialogBoundHandler = showCardDialog.bind(null, row);
+        editButton.onclick = dialogBoundHandler;
 
         checkboxCell.appendChild(checkbox);
         numCell.innerText = i + 1;
@@ -342,12 +366,83 @@ include_once "./layout/header.php";
         });
     }
 
+    function updateSelection(row) {
+        checkbox = row.querySelector('input[type="checkbox"]');
+        
+        if (checkbox.checked) {
+            console.log("row checked")
+            selectedRows.push(row);
+        } else {
+            console.log("row unchecked")
+            rowIndex = selectedRows.indexOf(row);
+            selectedRows.splice(rowIndex, 1)  // remove the row from selection array based on its index
+        }
+
+        if (selectedRows.length > 0) {  // toggle the visibility of selection menu
+            selectionActions.style = "";
+        } else {
+            selectionActions.style = "display: none";
+        }
+        // console.log(row);
+    }
+
+    async function deleteSelected() {
+        // TODO: send request to remove rows from database
+        jsonData = {
+            "ids": selectedRows.map((row) => cards[row.rowIndex - 1].id)
+        };
+
+        console.log(jsonData);
+
+        try {
+            const response = await fetch("./api/cards.php", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(jsonData)
+            });
+
+            let response_json = await response.json();
+            if (response_json.message != "OK") {
+                throw new Error("Error deleting entry");
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        selectedRows.forEach(row => {
+            cards.splice(row.rowIndex - 1, 1);
+
+            // update HTML table
+            row.remove()
+            reorderRows();
+        });
+
+        selectedRows = [];  // clear selection
+        selectionActions.style = "display: none";  // hide menu
+    }
+
+    function showCardDialog(row) {
+        console.log("editing row:", row);
+        let cardNum = parseInt(row.cells[1].innerText) - 1;
+
+        let card = cards[cardNum];
+
+        cardDialogNum.value = cardNum;
+        cardDialogId.value = card.id;
+        cardDialogFrontText.value = card.front_text;
+        cardDialogBackText.value = card.back_text;
+
+        cardDialog.showModal();
+    }
+
     addForm.addEventListener("submit", (event) => {
         event.preventDefault();
         addEntry();
     });
 
-    dialogForm.addEventListener("submit", (event) => {
+    cardDialogForm.addEventListener("submit", (event) => {
         event.preventDefault();
         updateEntry();
     });

@@ -49,7 +49,6 @@ include_once "./layout/header.php";
         <input type="text" name="title" id="title">
     </p>
     <p>
-        <!-- TODO: place the label to the top next to the textarea -->
         <label for="description">Popis:</label>
         <textarea name="description" id="description"></textarea>
     </p>

@@ -1,6 +1,10 @@
 body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
+    font-family: sans-serif;
 }
 
 .navbar {
@@ -34,18 +38,83 @@ body {
     color: black;
 }
 
+footer {
+    margin-top: auto;
+    text-align: center;
+}
+
 main {
     margin: 10px;
 }
 
+.btn {
+    display: inline-block;
+    color: black;
+    background-color: #e7e7e7;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: default;
+}
+
+.btn-big {
+    padding: 15px !important;
+}
+
+.btn-red {
+    background-color: #ff9393 !important;
+}
+
+.btn-red:hover {
+    background-color: #ff8a8a !important;
+}
+
+button, input[type="submit"] {
+    color: black;
+    background-color: #e7e7e7;
+    text-decoration: none;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: initial;
+}
+
+.btn:hover, button:hover, input[type="submit"]:hover {
+    background-color: #dadada;
+}
+
+input[type="text"], input[type="password"], textarea {
+    padding: 8px 12px;
+    border: 1px solid #dadada;
+    border-radius: 5px;
+}
+
+textarea {
+    vertical-align: top;
+}
+
+.actions-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
 
 table {
     border-collapse: collapse;
 }
 
+th {
+    background-color: #e7e7e7;
+}
+
 th, td {
-    border: 1px solid black;
+    border: 1px solid #dadada;
     padding: 10px 10px;
+    text-align: left;
+}
+
+tr:nth-child(odd) {
+    background-color: #f4f4f4;
 }
 
 .practice-container {
@@ -57,13 +126,15 @@ th, td {
     display: flex;
     border-radius: 10px;
     background-color: deepskyblue;
-    width: 300px;
-    height: 180px;
+    width: 650px;
+    height: 415px;
     /* margin: auto; */
 }
 
 .card > p {
     margin: auto;
-    font-size: 2rem;
+    padding: 20px;
+    font-size: 3rem;
     text-align: center;
+    word-break: break-word;
 }

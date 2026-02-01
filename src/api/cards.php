@@ -117,27 +117,47 @@ elseif ($_SERVER["REQUEST_METHOD"] == "DELETE") {
     $json = file_get_contents("php://input");
     $data = json_decode($json, true);
 
-    $card_id = $data["id"];
-
-    // validate that the user owns this card
-    if (!check_card_ownership($user_id, $card_id)) {
-        send_json_message("You do not own this card");
-        exit();
+    if (isset($data["id"])) {  // delete single card
+        $card_id = $data["id"];
+    
+        // validate that the user owns this card
+        if (!check_card_ownership($user_id, $card_id)) {
+            send_json_message("You do not own this card");
+            exit();
+        }
+    
+    
+        $sql = "DELETE FROM cards WHERE id=?";
+    
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $card_id);
+    
+        $result = $stmt->execute();
+    
+        if ($result != 1) {
+            send_json_message("Error deleting entry");
+            exit();
+        }
+    
+        send_json_message("OK");
     }
+    else if (isset($data["ids"])) {  // delete multiple cards
+        $card_ids = $data["ids"];
 
+        $parameters = str_repeat('?,', count($card_ids) - 1) . '?';
+        $sql = "DELETE c
+                FROM cards c INNER JOIN study_sets s
+                ON s.id = c.study_set_id
+	            WHERE s.user_id=? AND c.id IN ($parameters)";
 
-    $sql = "DELETE FROM cards WHERE id=?";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $card_id);
-
-    $result = $stmt->execute();
-
-    if ($result != 1) {
-        send_json_message("Error deleting entry");
-        exit();
+        $result = $conn->execute_query($sql, array_merge([$user_id], $card_ids));
+    
+        if ($result != 1) {
+            send_json_message("Error deleting entries");
+            exit();
+        }
+    
+        send_json_message("OK");
     }
-
-    send_json_message("OK");
 }
 ?>
