@@ -35,7 +35,7 @@ include_once "./layout/header.php";
         <p id="back-text" style="display: none;"></p>
     </div>
 
-    <p id="progress">0/0</p>
+    <p id="progress" onclick="showJumpDialog()">0/0</p>
 
     <div>
         <button type="button" id="flip-btn" onclick="flipCard()">Otočit</button>
@@ -44,11 +44,20 @@ include_once "./layout/header.php";
     </div>
 </div>
 
+<dialog>
+    <label for="card-num">Číslo karty:</label>
+    <input type="number" name="card-num" id="card-num" min="1">
+    <input type="button" value="Zobrazit" onclick="jumpToCard()">
+</dialog>
+
 <script>
     const frontText = document.querySelector("#front-text");
     const backText = document.querySelector("#back-text");
 
     const progress = document.querySelector("#progress");
+
+    const jumpDialog = document.querySelector("dialog");
+    const jumpCardNum = jumpDialog.querySelector("#card-num");
 
     let cards = [];
     let cardNum = 0;
@@ -120,6 +129,19 @@ include_once "./layout/header.php";
         }
     }
 
+    function showJumpDialog() {
+        jumpCardNum.value = cardNum + 1;
+        jumpCardNum.max = cards.length;
+        jumpDialog.showModal();
+    }
+
+    function jumpToCard() {
+        cardNum = parseInt(jumpCardNum.value) - 1;
+        flipped = false;
+        displayCard();
+        jumpDialog.close();
+    }
+
     document.addEventListener("keydown", function (event) {
         if (event.key == "ArrowLeft") {
             previousCard();
@@ -129,7 +151,7 @@ include_once "./layout/header.php";
             event.preventDefault();
             flipCard();
         } else {
-            return;
+            return true;
         }
     });
 

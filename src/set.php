@@ -84,7 +84,8 @@ include_once "./layout/header.php";
     <thead>
         <tr>
             <th scope="col">
-                <input type="checkbox" name="" id="">
+                <!-- TODO: set name and id parameters -->
+                <input type="checkbox" name="" id="" onclick="selectAll()">
             </th>
             <th scope="col">#</th>
             <th scope="col">Přední text</th>
@@ -153,8 +154,10 @@ include_once "./layout/header.php";
     let selectedRows = [];
 
     const table = document.querySelector("table#cards-table");
+    const tableBody = table.querySelector("tbody");
     
     const selectionActions = document.querySelector("#selection-actions");
+    const selectAllBox = table.querySelector("thead tr th input[type='checkbox']");
 
     const cardDialog = document.querySelector("dialog#card-dialog");
     const cardDialogForm = cardDialog.querySelector("form");
@@ -247,10 +250,12 @@ include_once "./layout/header.php";
 
 
             // update HTML table
-            let row = table.rows[cardNum + 1];  // +1 to skip the table head
+            // let row = tableBody.rows[cardNum + 1];  // +1 to skip the table head
+            let row = tableBody.rows[cardNum];
             console.log("row:", row);
             
-            table.deleteRow(cardNum + 1);  // +1 to skip the table head
+            // tableBody.deleteRow(cardNum + 1);  // +1 to skip the table head
+            tableBody.deleteRow(cardNum);
 
             reorderRows();
 
@@ -287,7 +292,8 @@ include_once "./layout/header.php";
 
 
             // update HTML table
-            let row = table.rows[cardNum + 1];  // +1 to skip the table head
+            // let row = tableBody.rows[cardNum + 1];  // +1 to skip the table head
+            let row = tableBody.rows[cardNum];
             row.cells[2].innerText = new_card.front_text;
             row.cells[3].innerText = new_card.back_text;
             console.log("updating row:", row);
@@ -315,12 +321,12 @@ include_once "./layout/header.php";
     }
 
     function reorderRows() {
-        let i = 0;
-        for (let row of table.rows) {
-            if (i == 0) {  // skip the first row (table head)
-                i++;
-                continue;
-            }
+        let i = 1;
+        for (let row of tableBody.rows) {
+            // if (i == 0) {  // skip the first row (table head)
+            //     i++;
+            //     continue;
+            // }
 
             row.cells[1].innerText = i;
 
@@ -329,7 +335,7 @@ include_once "./layout/header.php";
     }
 
     function createRow(i, card) {
-        let row = table.insertRow(-1);
+        let row = tableBody.insertRow(-1);
 
         let checkboxCell = row.insertCell(0);
         let numCell = row.insertCell(1);
@@ -366,18 +372,80 @@ include_once "./layout/header.php";
         });
     }
 
+    function selectAll() {
+        selectedRows = [];
+
+        if (selectAllBox.checked) {
+            console.log("select all");
+            for (let i = 0; i < tableBody.rows.length; i++) {
+                let checkbox = tableBody.rows[i].querySelector('input[type="checkbox"]');
+                checkbox.checked = true;
+                selectedRows.push(i);
+            }
+        } else {
+            console.log("unselect all");
+            for (let i = 0; i < tableBody.rows.length; i++) {
+                let checkbox = tableBody.rows[i].querySelector('input[type="checkbox"]');
+                checkbox.checked = false;
+            }
+        }
+
+        // TODO: put this in a seperate function to avoid reusing code
+        if (selectedRows.length > 0) {  // toggle the visibility of selection menu
+            selectionActions.style = "";
+        } else {
+            selectionActions.style = "display: none";
+        }
+    }
+
+    // TODO: get rid of this function in favor of updateSelection?
+    function toggleRowSelection(rowIndex) {
+        let row = tableBody.rows[rowIndex];
+        let checkbox = row.querySelector('input[type="checkbox"]');
+
+        console.log(row);
+        console.log(checkbox)
+
+        if (checkbox.checked) {
+            checkbox.checked = false;
+
+            console.log("row unchecked");
+            let selectedRowIndex = selectedRows.indexOf(rowIndex);
+            selectedRows.splice(selectedRowIndex, 1)  // remove the row from selection array based on its index
+            
+        } else {
+            checkbox.checked = true;
+
+            console.log("row checked");
+            selectedRows.push(rowIndex);
+        }
+
+        // TODO: put this in a seperate function to avoid reusing code
+        if (selectedRows.length > 0) {  // toggle the visibility of selection menu
+            selectionActions.style = "";
+        } else {
+            selectionActions.style = "display: none";
+        }
+    }
+
     function updateSelection(row) {
+        let rowIndex = row.rowIndex - 1;
+
         checkbox = row.querySelector('input[type="checkbox"]');
         
         if (checkbox.checked) {
-            console.log("row checked")
-            selectedRows.push(row);
+            console.log("row checked");
+            selectedRows.push(rowIndex);
+            // selectedRows.push(row);
         } else {
-            console.log("row unchecked")
-            rowIndex = selectedRows.indexOf(row);
-            selectedRows.splice(rowIndex, 1)  // remove the row from selection array based on its index
+            console.log("row unchecked");
+            // let selectedRowIndex = selectedRows.indexOf(row);
+            // selectedRows.splice(selectedRowIndex, 1)  // remove the row from selection array based on its index
+            let selectedRowIndex = selectedRows.indexOf(rowIndex);
+            selectedRows.splice(selectedRowIndex, 1)  // remove the row from selection array based on its index
         }
 
+        // TODO: put this in a seperate function to avoid reusing code
         if (selectedRows.length > 0) {  // toggle the visibility of selection menu
             selectionActions.style = "";
         } else {
@@ -387,9 +455,8 @@ include_once "./layout/header.php";
     }
 
     async function deleteSelected() {
-        // TODO: send request to remove rows from database
         jsonData = {
-            "ids": selectedRows.map((row) => cards[row.rowIndex - 1].id)
+            "ids": selectedRows.map((rowIndex) => cards[rowIndex].id)
         };
 
         console.log(jsonData);
@@ -411,13 +478,22 @@ include_once "./layout/header.php";
             console.error(e);
         }
 
-        selectedRows.forEach(row => {
-            cards.splice(row.rowIndex - 1, 1);
 
-            // update HTML table
-            row.remove()
-            reorderRows();
+        // update cards array
+        console.log("deleting cards at indexes", selectedRows);
+        cards = cards.filter((_, i) => !selectedRows.includes(i));
+
+        // update HTML table
+        rowsToRemove = [];
+        selectedRows.forEach(rowIndex => {
+            rowsToRemove.push(tableBody.rows[rowIndex]);
         });
+
+        rowsToRemove.forEach(row => {
+            row.remove();
+        });
+
+        reorderRows();
 
         selectedRows = [];  // clear selection
         selectionActions.style = "display: none";  // hide menu
