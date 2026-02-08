@@ -1,8 +1,8 @@
 <?php
+session_start();
+
 include_once "utils.php";
 include_once "db.php";
-
-session_start();
 
 if (!is_logged_in()) {
     header("Location: login.php");
@@ -83,20 +83,6 @@ shuffle($cards);
                     $question = $card["back_text"];
                     $answer = $card["front_text"];
                 }
-                // else {
-                //     // mix type
-
-                //     echo $i;
-                //     echo intdiv(min($question_count, count($cards)), 2);
-
-                //     if ($i <= intdiv(min($question_count, count($cards)), 2)) {
-                //         $question = $card["front_text"];
-                //         $answer = $card["back_text"];
-                //     } else {
-                //         $question = $card["back_text"];
-                //         $answer = $card["front_text"];
-                //     }
-                // }
 
                 echo "<li>";
 

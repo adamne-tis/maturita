@@ -1,8 +1,8 @@
 <?php
+session_start();
+
 include_once "utils.php";
 include_once "db.php";
-
-session_start();
 
 if (!is_logged_in()) {
     header("Location: login.php");
@@ -58,7 +58,6 @@ include_once "./layout/header.php";
         <select name="test_type" id="test-type">
             <option value="front">Přední text - Zadní text</option>
             <option value="back">Zadní text - Přední text</option>
-            <!-- <option value="mix">Kombinovaný</option> -->
         </select>
     </p>
 

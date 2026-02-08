@@ -1,9 +1,9 @@
 <?php
-include_once "../utils.php";
-
 session_start();
 
-if (!isset($_SESSION["user_id"])) {
+include_once "../utils.php";
+
+if (!is_logged_in()) {
     send_json_message("Please log in");
     exit();
 }

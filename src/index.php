@@ -7,7 +7,7 @@ include_once "./layout/header.php";
 
 <!-- TODO: info o strance -->
 
-<p>Pro vytvoření a procvičování balíčků slovíček se prosím přihlašte.</p>
+<p>Tato stránka umožňuje vytvářet kartičky pro procvičování slovíček.</p>
 
 <?php
 include_once "./layout/footer.php";

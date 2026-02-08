@@ -33,11 +33,6 @@ function check_study_set_ownership($user_id, $study_set_id) {
 function check_card_ownership($user_id, $card_id) {
     $conn = connect_db();
 
-    // $sql = "SELECT s.user_id 
-    //         FROM cards c LEFT JOIN study_sets s
-    //         ON s.id = c.study_set_id
-	//         WHERE c.id=?";
-
     $sql = "SELECT s.id
             FROM cards c LEFT JOIN study_sets s
             ON s.id = c.study_set_id

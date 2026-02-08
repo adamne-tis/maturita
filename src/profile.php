@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 include_once "utils.php";
 
 if (!is_logged_in()) {
@@ -69,12 +70,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: logout.php");
             exit();
         }
-
-        // if ($conn->affected_rows) {
-        //     echo "Váš účet byl úspěšně odstraněn";
-        // } else {
-        //     echo "Při odstraňování vašeho účtu došlo k chybě";
-        // }
     }
 }
 ?>

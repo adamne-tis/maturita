@@ -1,7 +1,7 @@
 <?php
-include_once "utils.php";
-
 session_start();
+
+include_once "utils.php";
 
 if (!is_logged_in()) {
     header("Location: login.php");
@@ -59,6 +59,7 @@ $description = htmlspecialchars($study_set["description"]);
 ?>
 
 <?php
+$page_title = "$title | Flashcards";
 include_once "./layout/header.php";
 ?>
 
@@ -84,8 +85,7 @@ include_once "./layout/header.php";
     <thead>
         <tr>
             <th scope="col">
-                <!-- TODO: set name and id parameters -->
-                <input type="checkbox" name="" id="" onclick="selectAll()">
+                <input type="checkbox" onclick="selectAll()">
             </th>
             <th scope="col">#</th>
             <th scope="col">Přední text</th>
@@ -129,7 +129,7 @@ include_once "./layout/header.php";
 </dialog>
 
 <dialog id="card-dialog">
-    <form method="post" id="edit-form">
+    <form method="post">
         <input type="hidden" name="num" value="0" id="num" disabled>
         <input type="hidden" name="id" value="0" id="id">
         <p>
@@ -212,7 +212,7 @@ include_once "./layout/header.php";
 
 
             // update HTML table
-            createRow(cards.length - 1, card);
+            createRow(card);
 
             // bring focus on front text input
             frontTextInput.focus();
@@ -250,11 +250,9 @@ include_once "./layout/header.php";
 
 
             // update HTML table
-            // let row = tableBody.rows[cardNum + 1];  // +1 to skip the table head
             let row = tableBody.rows[cardNum];
             console.log("row:", row);
             
-            // tableBody.deleteRow(cardNum + 1);  // +1 to skip the table head
             tableBody.deleteRow(cardNum);
 
             reorderRows();
@@ -292,7 +290,6 @@ include_once "./layout/header.php";
 
 
             // update HTML table
-            // let row = tableBody.rows[cardNum + 1];  // +1 to skip the table head
             let row = tableBody.rows[cardNum];
             row.cells[2].innerText = new_card.front_text;
             row.cells[3].innerText = new_card.back_text;
@@ -312,8 +309,8 @@ include_once "./layout/header.php";
             }
 
             const result = await response.json();
-            // console.log(result);
             cards = result;
+
             renderRows();
         } catch (error) {
             console.error(error.message);
@@ -323,18 +320,13 @@ include_once "./layout/header.php";
     function reorderRows() {
         let i = 1;
         for (let row of tableBody.rows) {
-            // if (i == 0) {  // skip the first row (table head)
-            //     i++;
-            //     continue;
-            // }
-
             row.cells[1].innerText = i;
 
             i++;
         }
     }
 
-    function createRow(i, card) {
+    function createRow(card) {
         let row = tableBody.insertRow(-1);
 
         let checkboxCell = row.insertCell(0);
@@ -345,31 +337,34 @@ include_once "./layout/header.php";
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        checkbox.name = ""; // TODO
-        checkbox.id = ""; // TODO
         const selectionBoundHandler = updateSelection.bind(null, row);
         checkbox.onclick = selectionBoundHandler;
 
         const editButton = document.createElement("button");
         editButton.innerText = "Upravit";
-        // const boundHandler = showCardDialog.bind(null, i);
         const dialogBoundHandler = showCardDialog.bind(null, row);
         editButton.onclick = dialogBoundHandler;
 
         checkboxCell.appendChild(checkbox);
-        numCell.innerText = i + 1;
+        numCell.innerText = tableBody.rows.length;
         frontTextCell.innerText = card.front_text;
         backTextCell.innerText = card.back_text;
         editCell.appendChild(editButton);
     }
 
     function renderRows() {
-        let i = 0;
         cards.forEach(card => {
-            createRow(i, card);
-
-            i++;
+            createRow(card);
         });
+    }
+
+    function updateActionsVisibility() {
+        // toggle the visibility of selection menu
+        if (selectedRows.length > 0) {
+            selectionActions.style = "";
+        } else {
+            selectionActions.style = "display: none";
+        }
     }
 
     function selectAll() {
@@ -390,42 +385,7 @@ include_once "./layout/header.php";
             }
         }
 
-        // TODO: put this in a seperate function to avoid reusing code
-        if (selectedRows.length > 0) {  // toggle the visibility of selection menu
-            selectionActions.style = "";
-        } else {
-            selectionActions.style = "display: none";
-        }
-    }
-
-    // TODO: get rid of this function in favor of updateSelection?
-    function toggleRowSelection(rowIndex) {
-        let row = tableBody.rows[rowIndex];
-        let checkbox = row.querySelector('input[type="checkbox"]');
-
-        console.log(row);
-        console.log(checkbox)
-
-        if (checkbox.checked) {
-            checkbox.checked = false;
-
-            console.log("row unchecked");
-            let selectedRowIndex = selectedRows.indexOf(rowIndex);
-            selectedRows.splice(selectedRowIndex, 1)  // remove the row from selection array based on its index
-            
-        } else {
-            checkbox.checked = true;
-
-            console.log("row checked");
-            selectedRows.push(rowIndex);
-        }
-
-        // TODO: put this in a seperate function to avoid reusing code
-        if (selectedRows.length > 0) {  // toggle the visibility of selection menu
-            selectionActions.style = "";
-        } else {
-            selectionActions.style = "display: none";
-        }
+        updateActionsVisibility()
     }
 
     function updateSelection(row) {
@@ -435,23 +395,16 @@ include_once "./layout/header.php";
         
         if (checkbox.checked) {
             console.log("row checked");
+
             selectedRows.push(rowIndex);
-            // selectedRows.push(row);
         } else {
             console.log("row unchecked");
-            // let selectedRowIndex = selectedRows.indexOf(row);
-            // selectedRows.splice(selectedRowIndex, 1)  // remove the row from selection array based on its index
+
             let selectedRowIndex = selectedRows.indexOf(rowIndex);
             selectedRows.splice(selectedRowIndex, 1)  // remove the row from selection array based on its index
         }
 
-        // TODO: put this in a seperate function to avoid reusing code
-        if (selectedRows.length > 0) {  // toggle the visibility of selection menu
-            selectionActions.style = "";
-        } else {
-            selectionActions.style = "display: none";
-        }
-        // console.log(row);
+        updateActionsVisibility()
     }
 
     async function deleteSelected() {
@@ -474,29 +427,29 @@ include_once "./layout/header.php";
             if (response_json.message != "OK") {
                 throw new Error("Error deleting entry");
             }
+
+
+            // update cards array
+            console.log("deleting cards at indexes", selectedRows);
+            cards = cards.filter((_, i) => !selectedRows.includes(i));
+
+            // update HTML table
+            rowsToRemove = [];
+            selectedRows.forEach(rowIndex => {
+                rowsToRemove.push(tableBody.rows[rowIndex]);
+            });
+
+            rowsToRemove.forEach(row => {
+                row.remove();
+            });
+
+            reorderRows();
+
+            selectedRows = [];  // clear selection
+            updateActionsVisibility()
         } catch (e) {
             console.error(e);
         }
-
-
-        // update cards array
-        console.log("deleting cards at indexes", selectedRows);
-        cards = cards.filter((_, i) => !selectedRows.includes(i));
-
-        // update HTML table
-        rowsToRemove = [];
-        selectedRows.forEach(rowIndex => {
-            rowsToRemove.push(tableBody.rows[rowIndex]);
-        });
-
-        rowsToRemove.forEach(row => {
-            row.remove();
-        });
-
-        reorderRows();
-
-        selectedRows = [];  // clear selection
-        selectionActions.style = "display: none";  // hide menu
     }
 
     function showCardDialog(row) {

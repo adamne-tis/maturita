@@ -1,8 +1,8 @@
 <?php
+session_start();
+
 include_once "utils.php";
 include_once "db.php";
-
-session_start();
 
 if (!is_logged_in()) {
     header("Location: login.php");

@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 include_once "utils.php";
 
 if (is_logged_in()) {
@@ -37,7 +38,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
         $_SESSION["user_id"] = $row["id"];
 
         // redirect to sets.php
-        echo '<script>window.location.href="./sets.php";</script>';
+        js_redirect("./sets.php");
         exit();
     }
 }

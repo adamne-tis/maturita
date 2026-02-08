@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 include_once "utils.php";
 
 if (is_logged_in()) {
@@ -38,8 +39,8 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
 
     $_SESSION["user_id"] = $id;
 
-    // redirect to sets.php
-    echo '<script>window.location.href="./sets.php";</script>';
+    // redirect
+    js_redirect("./sets.php");
     exit();
 }
 ?>
@@ -66,8 +67,8 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
 
 <script>
     const regForm = document.querySelector("form#reg-form");
-    const passwordInput = document.querySelector("input#password");
-    const passwordConfirmInput = document.querySelector("input#password-confirmation");
+    const passwordInput = regForm.querySelector("input#password");
+    const passwordConfirmInput = regForm.querySelector("input#password-confirmation");
 
     regForm.addEventListener("input", (event) => {
         if (passwordInput.value != passwordConfirmInput.value) {

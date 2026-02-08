@@ -1,4 +1,9 @@
 body {
+    --theme-color: #00bfff;
+    --white-primary: #e7e7e7;
+    --white-secondary: #dadada;
+
+
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -8,7 +13,7 @@ body {
 }
 
 .navbar {
-    background-color: deepskyblue;
+    background-color: var(--theme-color);
 }
 
 .navbar > ul {
@@ -16,16 +21,7 @@ body {
     list-style: none;
     margin: 0;
     padding: 0;
-    /* margin-right: 10px; */
 }
-
-/* .navbar > ul > :nth-child(2) {
-    margin-right: auto;
-} */
-
-/* .navbar-right-separator {
-    margin-right: auto;
-} */
 
 .navbar-separator {
     margin-right: auto;
@@ -50,7 +46,7 @@ main {
 .btn {
     display: inline-block;
     color: black;
-    background-color: #e7e7e7;
+    background-color: var(--white-primary);
     text-decoration: none;
     padding: 8px 12px;
     border-radius: 5px;
@@ -71,7 +67,7 @@ main {
 
 button, input[type="submit"] {
     color: black;
-    background-color: #e7e7e7;
+    background-color: var(--white-primary);
     text-decoration: none;
     padding: 8px 12px;
     border: none;
@@ -80,12 +76,12 @@ button, input[type="submit"] {
 }
 
 .btn:hover, button:hover, input[type="submit"]:hover {
-    background-color: #dadada;
+    background-color: var(--white-secondary);
 }
 
 input[type="text"], input[type="password"], textarea {
     padding: 8px 12px;
-    border: 1px solid #dadada;
+    border: 1px solid var(--white-secondary);
     border-radius: 5px;
 }
 
@@ -104,11 +100,11 @@ table {
 }
 
 th {
-    background-color: #e7e7e7;
+    background-color: var(--white-primary);
 }
 
 th, td {
-    border: 1px solid #dadada;
+    border: 1px solid var(--white-secondary);
     padding: 10px 10px;
     text-align: left;
 }
@@ -125,10 +121,9 @@ tr:nth-child(odd) {
 .card {
     display: flex;
     border-radius: 10px;
-    background-color: deepskyblue;
+    background-color: var(--theme-color);
     width: 650px;
     height: 415px;
-    /* margin: auto; */
 }
 
 .card > p {

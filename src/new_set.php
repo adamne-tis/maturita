@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 include_once "utils.php";
 
 if (!is_logged_in()) {
@@ -31,7 +32,8 @@ if (isset($_POST["title"]) && isset($_POST["description"])) {
         $id = $conn->insert_id;  // get id of the newly created study set
     
         // redirect to newly created study set
-        echo '<script>window.location.href="./set.php?id='. $id. '";</script>';
+        js_redirect("./set.php?id=$id");
+        exit();
     }
 }
 ?>

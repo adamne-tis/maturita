@@ -12,7 +12,6 @@ services:
     #   - DOMAIN=example.com
 
   php:
-    # image: docker.io/php:8.5-fpm-alpine
     build:
       context: .
       dockerfile: php.Dockerfile

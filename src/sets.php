@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 include_once "utils.php";
 
 if (!is_logged_in()) {
@@ -26,14 +27,13 @@ include_once "./layout/header.php";
     </thead>
     <tbody>
         <?php
-            // TODO: check difference between "include" and "include_once" and unify all of the functions
-            include "db.php";
+            include_once "db.php";
             $conn = connect_db();
 
             $sql = "SELECT s.id, s.title, COUNT(*) AS card_count
                     FROM study_sets s LEFT JOIN cards c
                     ON c.study_set_id = s.id
-	                WHERE s.user_id=? GROUP BY 1";
+	                WHERE s.user_id=? GROUP BY s.id";
 
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $_SESSION["user_id"]);

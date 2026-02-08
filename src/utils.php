@@ -15,4 +15,8 @@ function send_json_message($msg) {
     header("Content-Type: application/json");
     echo json_encode($response_data);
 }
+
+function js_redirect($path) {
+    echo '<script>window.location.href="'. $path. '";</script>';
+}
 ?>
